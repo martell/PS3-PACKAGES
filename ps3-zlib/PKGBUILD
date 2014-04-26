@@ -1,0 +1,32 @@
+# Maintainer: Martell Malone < martell malone at g mail dot com>
+
+_realname=zlib
+pkgname=("${CARCH}-${_realname}")
+pkgver=1.2.8
+pkgrel=2
+pkgdesc="Compression library implementing the deflate compression method found in gzip and PKZIP (ps3)"
+arch=('any')
+groups=("${CARCH}")
+license=('custom')
+url="http://www.zlib.net/"
+options=('staticlibs' '!strip')
+source=("http://zlib.net/current/${_realname}-${pkgver}.tar.gz")
+md5sums=('44d667c142d7cda120332623eab69f40')
+
+prepare() {
+  cd ${srcdir}/${_realname}-${pkgver}
+  grep -A 24 '^  Copyright' zlib.h > LICENSE
+
+}
+
+build() {
+  cd ${srcdir}/${_realname}-${pkgver}
+  CHOST=${PPU_PREFIX} ./configure --prefix=${PS3_PREFIX}/${PPU_PREFIX} --static
+  make -j1 all
+}
+
+
+package() {
+  cd ${srcdir}/${_realname}-${pkgver}
+  make install DESTDIR="${pkgdir}"
+}

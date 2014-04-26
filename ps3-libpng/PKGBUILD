@@ -1,0 +1,63 @@
+# Maintainer: Martell Malone < martell malone at g mail dot com>
+
+_realname=libpng
+pkgname=("${CARCH}-${_realname}")
+pkgver=1.6.9
+pkgrel=1
+arch=('any')
+pkgdesc="A collection of routines used to create PNG format graphics (ps3)"
+depends=("${CARCH}-zlib")
+#makedepends=("${_mingw_suff}-gcc" "xz")
+groups=("${CARCH}")
+license=('custom')
+url="http://www.libpng.org/pub/png/libpng.html"
+options=('!strip' '!libtool' 'staticlibs')
+source=("http://downloads.sourceforge.net/sourceforge/libpng/libpng-$pkgver.tar.xz"
+        "http://downloads.sourceforge.net/project/libpng-apng/libpng16/$pkgver/libpng-$pkgver-apng.patch.gz")
+
+md5sums=('14e037c5c9f1db16844760285ad5c2d6'
+         'd784762a28f6a6c697a162873807f479')
+
+prepare() {
+  cd "$srcdir/libpng-$pkgver"
+
+  # Add animated PNG (apng) support
+  # see http://sourceforge.net/projects/libpng-apng/
+  patch -p1 -i "${srcdir}/libpng-$pkgver-apng.patch"
+
+  export CPPFLAGS=${PPU_CPPFLAGS}
+  export CFLAGS=${PPU_CFLAGS}
+  export CXXFLAGS=${PPU_CXXFLAGS}
+  export LDFLAGS=${PPU_LDFLAGS}
+}
+
+build() {
+  cd "$srcdir/libpng-$pkgver"
+
+  mkdir -p "${srcdir}/build-${CARCH}"
+  cd "${srcdir}/build-${CARCH}"
+
+    CFLAGS="-I${PS3_PREFIX}/${PPU_PREFIX}/include " \
+    LDFLAGS="-L${PS3_PREFIX}/${PPU_PREFIX}/lib -lrt -llv2" \
+    CHOST=${PPU_PREFIX} \
+    ../libpng-${pkgver}/configure \
+	  --host=${PPU_PREFIX} \
+	  --prefix=${PS3_PREFIX}/${PPU_PREFIX} \
+	  --enable-static --disable-shared \
+	  as_ln_s="cp -pR"
+    
+    CFLAGS="-I${PS3_PREFIX}/${PPU_PREFIX}/include " \
+    LDFLAGS="-L${PS3_PREFIX}/${PPU_PREFIX}/lib -lrt -llv2" \
+    make
+}
+
+package () {
+  cd "${srcdir}/build-${CARCH}"
+
+  CFLAGS="-I${PS3_PREFIX}/${PPU_PREFIX}/include " \
+  LDFLAGS="-L${PS3_PREFIX}/${PPU_PREFIX}/lib -lrt -llv2" \
+  make install DESTDIR="${pkgdir}"
+  rm -rf "${pkgdir}${MINGW_PREFIX}/share/man"
+
+  install -D -m644 "${srcdir}/libpng-${pkgver}/LICENSE" "${pkgdir}${PS3_PREFIX}/share/licenses/$_realname/LICENSE"
+}
