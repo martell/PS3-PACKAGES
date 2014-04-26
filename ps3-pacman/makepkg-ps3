@@ -1,0 +1,37 @@
+#!/usr/bin/bash
+#   makepkg-ps3 - wrapper for makepkg to build ps3 packages under MSYS2
+#
+#   Copyright (c) 2013 Martell Malone < martell malone at g mail dot com>
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+#declare -r MINGW_INSTALLS="ps3"
+#declare -r PS3_TOOLCAHINS="powerpc64-ps3-elf spu-unknown-elf"
+
+# if we cant find both toolchains quit
+#for _ps3 in ${PS3_TOOLCAHINS}; do
+#	if ![ -f "/ps3/${_ps3}/${_ps3}-gcc.exe" ]; then
+#		exit 0
+#	fi
+#done
+
+
+PKG_CONFIG_PATH="/ps3/powerpc64-ps3-elf/lib/pkgconfig" \
+MSYSTEM=MINGW32 \
+ACLOCAL_PATH="/ps3/powerpc64-ps3-elf/share/aclocal:/usr/share/aclocal" \
+PATH="/ps3/bin:/ps3/powerpc64-ps3-elf/bin:/ps3/spu-unknown-elf/bin:$PATH" \
+/usr/bin/makepkg --config /etc/makepkg_ps3.conf $@ || exit 1
+
+exit 0

@@ -1,0 +1,71 @@
+# Maintainer: Martell Malone <Martell Malone at g mail dot com>
+
+_target=ps3
+_realname=${_target}-toolchain
+_mingw_prefix=${MINGW_PREFIX:1}
+_mingw_suff=mingw-w64-${CARCH}
+
+pkgname=(
+    "${_mingw_suff}-${_realname}"
+)
+
+pkgver=1
+pkgrel=1
+pkgdesc="Cross Compiler for the Sony Playstation 3 (mingw-w64)"
+provides=("${_realname}")
+conflicts=("${_realname}")
+
+arch=('any')
+url="http://martell.com.temp"
+license=("GPL")
+makedepends=("${_mingw_suff}-gcc" "${_mingw_suff}-dlfcn" "${_mingw_suff}-pkg-config" "crosstool-ng")
+depends=("${_mingw_suff}-zlib" "${_mingw_suff}-iconv")
+options=('!strip') 
+
+source=(
+    ps3-ppu.config
+    ps3-spu.config
+)
+
+md5sums=('SKIP'
+         'SKIP'
+)
+
+prepare() {
+
+  rm -rf /tmp/ps3
+
+  mkdir -p ${srcdir}/ppu
+  mv ${srcdir}/ps3-ppu.config ${srcdir}/ppu/.config
+  cp -rf ${srcdir}/../patches ${srcdir}/ppu
+
+  echo 'CT_PREFIX_DIR="/tmp/ps3/${CT_TARGET}"' >> ${srcdir}/ppu/.config
+  echo 'CT_INSTALL_DIR="'${pkgdir}'"' >> ${srcdir}/ppu/.config
+
+  mkdir -p ${srcdir}/spu
+  mv ${srcdir}/ps3-spu.config ${srcdir}/spu/.config
+  cp -rf ${srcdir}/../patches ${srcdir}/spu
+
+  echo 'CT_PREFIX_DIR="/tmp/ps3/${CT_TARGET}"' >> ${srcdir}/spu/.config
+  echo 'CT_INSTALL_DIR="'${pkgdir}'"' >> ${srcdir}/spu/.config
+}
+
+build() {
+    echo ${_mingw_prefix^^}
+    export PATH=${MINGW_PREFIX}/bin:/usr/bin
+    echo ${PATH}
+
+    cd ${srcdir}/ppu
+    MSYSTEM="${_mingw_prefix^^}" CFLAGS="" CPPFLAGS="" CXXFLAGS="" LDFLAGS="" MAKEFLAGS="" ct-ng build
+
+    cd ${srcdir}/spu
+    MSYSTEM="${_mingw_prefix^^}" CFLAGS="" CPPFLAGS="" CXXFLAGS="" LDFLAGS="" MAKEFLAGS="" ct-ng build
+
+    #package up the 7z distrobution here if you want to supply them
+    #cd ${srcdir}/..
+    #7z a ${_mingw_prefix}-ps3-toolchain.7z /ps3
+}
+
+package(){
+  cp -rf /tmp/ps3 ${pkgdir}
+}
