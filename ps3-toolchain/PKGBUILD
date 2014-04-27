@@ -39,6 +39,7 @@ prepare() {
   mv ${srcdir}/ps3-ppu.config ${srcdir}/ppu/.config
   cp -rf ${srcdir}/../patches ${srcdir}/ppu
 
+  echo ' ' >> ${srcdir}/ppu/.config
   echo 'CT_PREFIX_DIR="/tmp/ps3/${CT_TARGET}"' >> ${srcdir}/ppu/.config
   echo 'CT_INSTALL_DIR="'${pkgdir}'"' >> ${srcdir}/ppu/.config
 
@@ -46,6 +47,7 @@ prepare() {
   mv ${srcdir}/ps3-spu.config ${srcdir}/spu/.config
   cp -rf ${srcdir}/../patches ${srcdir}/spu
 
+  echo ' ' >> ${srcdir}/spu/.config
   echo 'CT_PREFIX_DIR="/tmp/ps3/${CT_TARGET}"' >> ${srcdir}/spu/.config
   echo 'CT_INSTALL_DIR="'${pkgdir}'"' >> ${srcdir}/spu/.config
 }
